@@ -1,65 +1,195 @@
-import Image from "next/image";
 import styles from "./page.module.css";
+import Link from "next/link";
+import { DateTime } from "luxon";
+import { getPool } from "@/lib/db";
 
-export default function Home() {
+type RecentArticle = {
+  id: number;
+  source: string;
+  topic: string | null;
+  title: string;
+  url: string;
+  publishedAt: string;
+};
+
+async function loadRecentArticles(): Promise<RecentArticle[]> {
+  const pool = getPool();
+  const base = DateTime.now().setZone("Asia/Manila");
+  const windowStart = base.minus({ days: 7 }).startOf("day");
+
+  type Row = {
+    id: number;
+    source: string;
+    topic: string | null;
+    title: string;
+    url: string;
+    published_at: Date;
+    summary: string | null;
+  };
+
+  const res = await pool.query<Row>(
+    `
+      SELECT id, source, topic, title, url, published_at, summary
+      FROM articles
+      WHERE published_at >= $1
+        AND (
+          LOWER(title) LIKE '%water%' OR
+          LOWER(COALESCE(summary, '')) LIKE '%water%' OR
+          LOWER(title) LIKE '%flood%' OR
+          LOWER(COALESCE(summary, '')) LIKE '%flood%' OR
+          LOWER(title) LIKE '%dam%' OR
+          LOWER(COALESCE(summary, '')) LIKE '%dam%' OR
+          LOWER(title) LIKE '%reservoir%' OR
+          LOWER(COALESCE(summary, '')) LIKE '%reservoir%'
+        )
+      ORDER BY published_at DESC
+      LIMIT 10
+    `,
+    [windowStart.toUTC().toISO()],
+  );
+
+  return res.rows.map((row) => ({
+    id: row.id,
+    source: row.source,
+    topic: row.topic,
+    title: row.title,
+    url: row.url,
+    publishedAt: DateTime.fromJSDate(new Date(row.published_at)).toFormat(
+      "MMM d, yyyy • HH:mm",
+    ),
+  }));
+}
+
+export default async function Home() {
+  const recent = await loadRecentArticles();
   return (
     <div className={styles.page}>
+      <header className={styles.header}>
+        <div className={styles.brand}>
+          <span className={styles.brandDot} />
+          <div>
+            <div className={styles.brandTitle}>Water Updates</div>
+            <div className={styles.brandSubtitle}>Viber-ready news digest</div>
+          </div>
+        </div>
+        <nav className={styles.nav}>
+          <Link href="/admin" className={styles.navLink}>
+            Dashboard
+          </Link>
+        </nav>
+      </header>
+
       <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+        <section className={styles.heroContainer}>
+          <div className={styles.heroTextContent}>
+            <h1 className={styles.heroTitle}>Automatic water-related updates for your Viber groups.</h1>
+            <p className={styles.heroText}>
+              This tool collects water district advisories and water-related news, stores them in a database, and prepares
+              a daily 9:00&nbsp;AM digest that can later be pushed automatically to a Viber group.
+            </p>
+
+            <div className={styles.heroActions}>
+              <Link href="/admin" className={styles.primaryButton}>
+                Open dashboard
+              </Link>
+              <div className={styles.secondaryInfo}>
+                <span className={styles.badge}>Prototype</span>
+                <span>Built with Next.js and PostgreSQL</span>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.heroVisual}>
+            <div className={styles.mockupWindow}>
+              <div className={styles.mockupHeader}>
+                <span className={styles.mockupDot} style={{ background: "#ff5f56" }} />
+                <span className={styles.mockupDot} style={{ background: "#ffbd2e" }} />
+                <span className={styles.mockupDot} style={{ background: "#27c93f" }} />
+              </div>
+              <div className={styles.mockupBody}>
+                <div className={styles.messageBubble}>
+                  <div className={styles.messageSource}>💦 Water Updates Bot</div>
+                  <div className={styles.messageTitle}>Daily Digest: Mar 12</div>
+                  <div className={styles.messageLine}></div>
+                  <div className={styles.messageLine} style={{ width: "80%" }}></div>
+                </div>
+                <div className={styles.messageBubble} style={{ animationDelay: "1.5s", opacity: 0 }}>
+                  <div className={styles.messageSource}>⚠️ Maynilad Advisory</div>
+                  <div className={styles.messageTitle}>Water Interruption</div>
+                  <div className={styles.messageLine}></div>
+                </div>
+                <div className={styles.messageBubble} style={{ animationDelay: "3s", opacity: 0 }}>
+                  <div className={styles.messageSource}>📰 DENR News</div>
+                  <div className={styles.messageTitle}>New Water Policy</div>
+                  <div className={styles.messageLine}></div>
+                  <div className={styles.messageLine} style={{ width: "60%" }}></div>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.glowOne} />
+            <div className={styles.glowTwo} />
+          </div>
+        </section>
+
+        <section className={styles.grid}>
+          <div className={styles.card}>
+            <h2>Daily digest window</h2>
+            <p>
+              The system selects articles between 9:00&nbsp;AM yesterday and 8:59&nbsp;AM today (Asia/Manila), matching
+              the assessment specification.
+            </p>
+          </div>
+          <div className={styles.card}>
+            <h2>Multiple trusted sources</h2>
+            <p>
+              Sources include government agencies, major news outlets, and configurable water district websites. You can
+              adjust them in <code>lib/sources.ts</code>.
+            </p>
+          </div>
+          <div className={styles.card}>
+            <h2>Viber integration ready</h2>
+            <p>
+              Once a Viber bot token is available, the same digest data can be posted automatically into a Viber group
+              chat on a schedule.
+            </p>
+          </div>
+        </section>
+
+        <section className={styles.recentSection}>
+          <div className={styles.recentHeader}>
+            <h2>Recent articles (last 7 days)</h2>
+            <p>
+              Snapshot of water-related news and water district advisories collected in the last seven days. These items
+              are the basis for upcoming daily digests and future Viber updates.
+            </p>
+          </div>
+
+          {recent.length === 0 ? (
+            <div className={styles.recentEmpty}>
+              No articles saved yet. Open the dashboard and choose <strong>Update from sources</strong> to fetch the latest
+              items.
+            </div>
+          ) : (
+            <ul className={styles.recentList}>
+              {recent.map((item) => (
+                <li key={item.id} className={styles.recentItem}>
+                  <div className={styles.recentTitle}>{item.title}</div>
+                  <div className={styles.recentMeta}>
+                    <span className={styles.recentSource}>{item.source}</span>
+                    {item.topic ? <span className={styles.recentDot}>•</span> : null}
+                    {item.topic ? <span>{item.topic}</span> : null}
+                    <span className={styles.recentDot}>•</span>
+                    <span>{item.publishedAt}</span>
+                  </div>
+                  <a className={styles.recentLink} href={item.url} target="_blank" rel="noreferrer">
+                    View article
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       </main>
     </div>
   );

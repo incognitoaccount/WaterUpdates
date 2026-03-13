@@ -1,3 +1,67 @@
+# Water Updates (Assessment)
+
+This is a Next.js website that collects water-related news/articles and prepares a daily digest window:
+
+- **Digest window**: 9:00 AM yesterday → 8:59 AM today (**Asia/Manila**)
+- **Storage**: PostgreSQL (`DATABASE_URL`)
+- **Ingestion**: RSS (initial sources are in `lib/sources.ts`)
+
+## Setup (Local)
+
+1. Create a local Postgres database and set `DATABASE_URL`.
+
+Copy `.env.example` to `.env.local` and fill in:
+
+```bash
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DB_NAME
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Run migrations:
+
+```bash
+npm run db:migrate
+```
+
+4. Start dev server:
+
+```bash
+npm run dev
+```
+
+Open:
+- Home: `http://localhost:3000`
+- Admin: `http://localhost:3000/admin`
+
+## Admin actions
+
+- **Fetch (ingest) latest**: calls `POST /api/ingest` and inserts new articles (deduped by URL).
+- **Load digest preview**: calls `GET /api/digest` and shows articles in the digest window.
+
+## Deployment (Railway)
+
+1. Create a Railway project.
+2. Add a **PostgreSQL** plugin/database.
+3. Ensure your service has `DATABASE_URL` available (Railway usually injects it).
+4. Run migrations once on Railway:
+
+```bash
+npm run db:migrate
+```
+
+5. Deploy as a normal Next.js service (`npm run build`, then `npm run start`).
+
+## Next step: Viber integration
+
+Once you have a Viber bot and it can post to your group:
+- We will add a scheduled job that runs at **9:00 AM** and sends the digest.
+- Or a polling worker that sends new items shortly after publication.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
