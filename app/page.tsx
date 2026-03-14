@@ -72,7 +72,7 @@ export default async function Home() {
           <span className={styles.brandDot} />
           <div>
             <div className={styles.brandTitle}>Water Updates</div>
-            <div className={styles.brandSubtitle}>Viber-ready news digest</div>
+            <div className={styles.brandSubtitle}>Water news digest via Telegram</div>
           </div>
         </div>
         <nav className={styles.nav}>
@@ -85,20 +85,19 @@ export default async function Home() {
       <main className={styles.main}>
         <section className={styles.heroContainer}>
           <div className={styles.heroTextContent}>
-            <h1 className={styles.heroTitle}>Automatic water-related updates for your Viber groups.</h1>
+            <h1 className={styles.heroTitle}>Automatic water-related updates delivered to Telegram.</h1>
             <p className={styles.heroText}>
-              This tool collects water district advisories and water-related news, stores them in a database, and prepares
-              a daily 9:00&nbsp;AM digest that can later be pushed automatically to a Viber group.
+              This tool collects water district advisories and water-related news, stores them in a database, and sends
+              new articles automatically to your Telegram chat.
             </p>
 
             <div className={styles.heroActions}>
               <Link href="/admin" className={styles.primaryButton}>
                 Open dashboard
               </Link>
-              <div className={styles.secondaryInfo}>
-                <span className={styles.badge}>Prototype</span>
-                <span>Built with Next.js and PostgreSQL</span>
-              </div>
+              <Link href="/#recent" className={styles.secondaryButton}>
+                View recent articles
+              </Link>
             </div>
           </div>
 
@@ -151,20 +150,20 @@ export default async function Home() {
             </p>
           </div>
           <div className={styles.card}>
-            <h2>Viber integration ready</h2>
+            <h2>Telegram integration</h2>
             <p>
-              Once a Viber bot token is available, the same digest data can be posted automatically into a Viber group
-              chat on a schedule.
+              New water-related articles are sent automatically to your Telegram chat. You can also send the latest
+              digest on demand from the dashboard.
             </p>
           </div>
         </section>
 
-        <section className={styles.recentSection}>
+        <section id="recent" className={styles.recentSection}>
           <div className={styles.recentHeader}>
             <h2>Recent articles (last 7 days)</h2>
             <p>
-              Snapshot of water-related news and water district advisories collected in the last seven days. These items
-              are the basis for upcoming daily digests and future Viber updates.
+              Snapshot of water-related news and water district advisories collected in the last seven days. New items
+              are sent automatically to Telegram.
             </p>
           </div>
 

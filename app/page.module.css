@@ -269,6 +269,25 @@
   background: #1e293b;
 }
 
+/* View recent articles: outline style, scrolls to #recent on the same page */
+.secondaryButton {
+  padding: 14px 28px;
+  border-radius: 8px;
+  background: transparent;
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 15px;
+  border: 2px solid #0f172a;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.secondaryButton:hover {
+  transform: translateY(-2px);
+  background: #0f172a;
+  color: #ffffff;
+}
+
 .secondaryInfo {
   display: flex;
   flex-direction: column;
