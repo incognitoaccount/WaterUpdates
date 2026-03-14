@@ -26,9 +26,10 @@ function computeWindow(forLocalDate?: string) {
     ? DateTime.fromISO(forLocalDate, { zone: TZ })
     : DateTime.now().setZone(TZ);
 
-  // Dashboard view: show articles from the last 24 hours in Asia/Manila time.
+  // Dashboard view: show articles from the last 48 hours in Asia/Manila time
+  // so that items from both \"today\" and \"yesterday\" are visible.
   const windowEnd = base;
-  const windowStart = base.minus({ hours: 24 });
+  const windowStart = base.minus({ hours: 48 });
 
   return { forDate: base.toISODate(), windowStart, windowEnd };
 }
