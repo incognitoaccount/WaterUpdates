@@ -171,11 +171,13 @@ export default function AdminClient() {
                 setInfo(null);
                 try {
                   const res = await fetch("/api/telegram/send-digest", { method: "POST" });
-                  const json = (await res.json()) as { ok: boolean; error?: string };
+                  const json = (await res.json()) as { ok: boolean; count?: number; error?: string };
                   if (!json.ok) {
                     setError(json.error ?? "Failed to send Telegram message.");
+                  } else if ((json.count ?? 0) === 0) {
+                    setInfo("There are no new water-related articles to send to Telegram right now.");
                   } else {
-                    setInfo("Sent the daily digest to Telegram successfully.");
+                    setInfo("Sent new water-related articles to Telegram successfully.");
                   }
                 } catch (e) {
                   setError(e instanceof Error ? e.message : "Unknown error sending to Telegram.");
@@ -249,7 +251,7 @@ export default function AdminClient() {
               <div>
                 <div className={styles.panelTitle}>Latest articles/news</div>
                 <p className={styles.panelMeta}>
-                  Showing water-related articles and news from the last 24 hours (Asia/Manila).
+                  Showing water-related articles and news from roughly the last 48 hours (Asia/Manila).
                 </p>
               </div>
               {digestOk ? (
