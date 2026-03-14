@@ -120,3 +120,11 @@ export async function POST(req: Request) {
   }
 }
 
+// Allow simple GET-based triggers (like basic cron webhooks) by delegating to the
+// POST handler with an empty Request object. When called this way we behave as
+// if no JSON body was provided and ingest all configured sources with defaults.
+export async function GET() {
+  const fakeRequest = new Request("http://localhost");
+  return POST(fakeRequest);
+}
+

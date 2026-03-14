@@ -9,13 +9,14 @@ const { Client } = pg;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load environment variables for local development.
-// We prefer `.env.local` (Next.js style) and fall back to `.env`.
+// Load env from files, but do not override vars already set (e.g. DATABASE_URL from shell
+// when running migrations against Railway's public URL from your PC).
 const localEnvPath = path.join(__dirname, "..", ".env.local");
 const defaultEnvPath = path.join(__dirname, "..", ".env");
+const noOverride = { override: false };
 
-dotenv.config({ path: localEnvPath });
-dotenv.config({ path: defaultEnvPath });
+dotenv.config({ path: localEnvPath, ...noOverride });
+dotenv.config({ path: defaultEnvPath, ...noOverride });
 
 function requireEnv(name) {
   const value = process.env[name];
