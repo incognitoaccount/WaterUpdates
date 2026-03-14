@@ -3,6 +3,9 @@ import Link from "next/link";
 import { DateTime } from "luxon";
 import { getPool } from "@/lib/db";
 
+// Render on each request so we never need DATABASE_URL at build time (Railway injects it at runtime).
+export const dynamic = "force-dynamic";
+
 type RecentArticle = {
   id: number;
   source: string;
