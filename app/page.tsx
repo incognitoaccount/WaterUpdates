@@ -2,6 +2,7 @@ import styles from "./page.module.css";
 import Link from "next/link";
 import { DateTime } from "luxon";
 import { getPool } from "@/lib/db";
+import ScrollHashSync from "./ScrollHashSync";
 
 // Render on each request so we never need DATABASE_URL at build time (Railway injects it at runtime).
 export const dynamic = "force-dynamic";
@@ -67,6 +68,7 @@ export default async function Home() {
   const recent = await loadRecentArticles();
   return (
     <div className={styles.page}>
+      <ScrollHashSync />
       <header className={styles.header}>
         <div className={styles.brand}>
           <span className={styles.brandDot} />
